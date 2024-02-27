@@ -1,10 +1,28 @@
 import os
+import random
 import sys
 import pygame
 
 
+class Camera:
+    # зададим начальный сдвиг камеры
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    # позиционировать камеру на объекте target
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - WIDTH // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - HEIGHT // 2)
+
+
 def load_image(name, colorkey=None):
-    fullname = os.path.join('Data', name)
+    fullname = os.path.join('data', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
@@ -26,7 +44,7 @@ def terminate():
 
 
 def load_level(filename):
-    filename = "Data/" + filename
+    filename = "data/" + filename
     # читаем уровень, убирая символы перевода строки
     with open(filename, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
@@ -52,10 +70,10 @@ screen = pygame.display.set_mode(SIZE)
 filename = input('Введите название файла: ')
 
 tile_images = {
-    'wall': load_image('box.png'),
-    'empty': load_image('grass.png')
+    'wall': load_image('wall.png'),
+    'empty': load_image('floor.jpg')
 }
-player_image = load_image('mario.png')
+player_image = load_image('main_hero.png')
 
 tile_width = tile_height = 50
 
@@ -149,6 +167,7 @@ if __name__ == '__main__':
     running = True
     fps = 30
     clock = pygame.time.Clock()
+    camera = Camera()
 
     tiles_group = pygame.sprite.Group()
     walls_group = pygame.sprite.Group()
@@ -176,6 +195,11 @@ if __name__ == '__main__':
                 move_type = 'up'
             elif keys[pygame.K_DOWN]:
                 move_type = 'down'
+        # изменяем ракурс камеры
+        camera.update(player)
+        # обновляем положение всех спрайтов
+        for sprite in all_sprites:
+            camera.apply(sprite)
 
         all_sprites.update(move_type)
         move_type = None
