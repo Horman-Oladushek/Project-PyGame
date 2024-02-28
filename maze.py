@@ -36,7 +36,7 @@ def load_image(name, colorkey=None):
 tile_images = {
     'wall': load_image('wall.png'),
     'empty': load_image('floor.jpg'),
-    'point': load_image('point.png')
+    'point': load_image('fon.jpg')
 }
 player_image = load_image('main_hero.png')
 tile_width = 60
@@ -113,10 +113,10 @@ def displayText(text):
     all_sprites.draw(screen)
     player_group.draw(screen)
 
-    # delay of 1 second
     time.sleep(1)
 
 def move(key):
+    global flag
     c = -1
     for i in maze:
         c += 1
@@ -124,7 +124,7 @@ def move(key):
             if j == 3:
                 y = c
                 x = i.index(3)
-
+    #Влево
     if key == 'left':
         block = maze[y][x - 1]
         if block == 0:
@@ -136,9 +136,9 @@ def move(key):
             maze[y][x - 1] = 3
             maze[y][x] = 0
             x = x - 1
-            dest = 1
-            return dest
+            flag = True
 
+    #Вправо
     if key == 'right':
         block = maze[y][x + 1]
 
@@ -150,10 +150,10 @@ def move(key):
             maze[y][x + 1] = 3
             maze[y][x] = 0
             x = x + 1
-            dest = 1
-            return dest
+            flag = True
 
-    # up arrow is pressed
+
+    #Вверх
     if key == 'up':
         block = maze[y - 1][x]
         if block == 0:
@@ -164,10 +164,10 @@ def move(key):
             maze[y - 1][x] = 3
             maze[y][x] = 0
             y = y - 1
-            dest = 1
-            return dest
+            flag = True
 
-    # down arrow is pressed
+
+    #Вниз
     if key == 'down':
         block = maze[y + 1][x]
         if block == 0:
@@ -178,8 +178,7 @@ def move(key):
             maze[y + 1][x] = 3
             maze[y][x] = 0
             y = y + 1
-            dest = 1
-            return dest
+            flag = True
 
 dest = None
 
@@ -194,49 +193,50 @@ dest = None
 #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ]
+
 maze = [[1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0],
-        [1, 3, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0],
-        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-        [1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0],
-        [1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
-        [1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0],
-        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0],
-        [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0],
-        [1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 2], ]
+        [1, 3, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+        [1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+        [1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1],
+        [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 2, 1],
+        [1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1], ]
 
 move_type = None
 player, level_x, level_y = generate_level(maze)
-
+flag = False
 while True:
-    # start_x = random.randint(0, height - 1)
     generate_level(maze)
 
-    # renderMaze(maze)
-
-    # dest determines that destination is reached and ends game.
-    if dest == 1:
-        displayText("Yay! Destination reached!")
-        exit()
-
-    # accessing the event queue and the event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
 
-        # keydown when a key is pressed on the keyboard
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 move('left')
+                if flag is True:
+                    dest = 1
             if event.key == pygame.K_RIGHT:
                 move('right')
+                if flag is True:
+                    dest = 1
             if event.key == pygame.K_UP:
                 move('up')
+                if flag is True:
+                    dest = 1
             if event.key == pygame.K_DOWN:
-                move('down')
+                a = move('down')
+                if flag is True:
+                    dest = 1
+        if dest == 1:
+            displayText("Yay! Level complete!")
+            exit()
 
-    # renderMaze(maze)
     all_sprites.update(move_type)
     move_type = None
     player_group.draw(screen)
